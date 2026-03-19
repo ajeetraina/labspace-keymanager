@@ -1,6 +1,6 @@
-# Workshop AI Key Manager — Labspace
+# Workshop AI Key Manager for Labspace
 
-A [Docker Labspace](https://github.com/dockersamples/labspace-starter) that solves the API key sharing problem for workshops and labs with 50–100+ attendees.
+A [Labspace](https://github.com/dockersamples/labspace-starter) that solves the API key sharing problem for workshops and labs with 50–100+ attendees.
 
 Instead of sharing a single OpenAI or Anthropic key with the entire group, each attendee gets a **personal, time-boxed key** with a spend cap — issued in seconds from a self-hosted portal. The organiser keeps real keys private; attendees only ever see their workshop token.
 
