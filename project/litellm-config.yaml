@@ -18,11 +18,6 @@ model_list:
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
   salt_key: os.environ/LITELLM_SALT_KEY
-  default_team_settings:
-    max_budget: 2.00
-    budget_duration: 24h
-    tpm_limit: 20000
-    rpm_limit: 60
 
 litellm_settings:
   drop_params: true
