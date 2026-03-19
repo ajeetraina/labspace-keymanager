@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workshop AI Access</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 40px; width: 100%; max-width: 480px; }
+h1 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+p { color: #8b949e; font-size: 14px; margin-bottom: 28px; }
+label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 6px; }
+input { width: 100%; padding: 10px 14px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #e6edf3; font-size: 14px; margin-bottom: 16px; outline: none; }
+input:focus { border-color: #58a6ff; }
+button { width: 100%; padding: 11px; background: #1f6feb; border: none; border-radius: 6px; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+button:disabled { background: #21262d; color: #484f58; cursor: default; }
+.result { display: none; margin-top: 28px; }
+.result h2 { font-size: 15px; margin-bottom: 14px; color: #3fb950; }
+.key-box { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px 14px; font-family: monospace; font-size: 13px; word-break: break-all; margin-bottom: 10px; color: #79c0ff; }
+.meta { font-size: 12px; color: #8b949e; line-height: 1.9; }
+.copy-btn { width: auto; padding: 6px 14px; font-size: 13px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #e6edf3; cursor: pointer; margin-bottom: 12px; }
+.error { color: #f85149; font-size: 13px; margin-top: 12px; display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div style="font-size:28px;margin-bottom:8px">🐳</div>
+  <h1>Workshop AI Access</h1>
+  <p>Enter your name to receive a personal API key valid for this session.</p>
+  <label for="name">Your name</label>
+  <input id="name" type="text" placeholder="Jane Smith">
+  <label for="email">Email (optional)</label>
+  <input id="email" type="email" placeholder="jane@example.com">
+  <button id="btn" onclick="getKey()">Get my key</button>
+  <div class="error" id="err"></div>
+  <div class="result" id="result">
+    <h2>Your workshop key</h2>
+    <div class="key-box" id="key-display"></div>
+    <button class="copy-btn" onclick="copyKey()">Copy key</button>
+    <div class="meta" id="meta"></div>
+  </div>
+</div>
+<script>
+async function getKey() {
+  const name = document.getElementById('name').value.trim();
+  if (!name) { showError('Please enter your name.'); return; }
+  const btn = document.getElementById('btn');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  try {
+    const r = await fetch('http://localhost:8000/issue', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, email: document.getElementById('email').value.trim()})
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    document.getElementById('key-display').textContent = d.key;
+    document.getElementById('meta').innerHTML =
+      '<br><strong>Proxy URL:</strong> ' + d.proxy_url +
+      '<br><strong>Local model URL:</strong> ' + d.local_model_url +
+      '<br><strong>Expires:</strong> ' + d.expires_in + ' | <strong>Cap:</strong> $' + d.spend_cap_usd;
+    document.getElementById('result').style.display = 'block';
+    btn.textContent = 'Key issued';
+  } catch(e) {
+    showError('Could not issue key. Ask the organiser for help.');
+    btn.disabled = false; btn.textContent = 'Get my key';
+  }
+}
+function copyKey() { navigator.clipboard.writeText(document.getElementById('key-display').textContent); }
+function showError(msg) { const el = document.getElementById('err'); el.textContent = msg; el.style.display = 'block'; }
+</script>
+</body>
+</html>
