@@ -3,19 +3,35 @@ services:
     environment:
       PROJECT_CLONE_URL: https://github.com/ajeetraina/labspace-keymanager
 
-  # workspace:
-  #   # Override the default image if desired
-  #   # More details - https://github.com/dockersamples/labspace-infra/blob/main/docs/configuration.md#overriding-the-workspace-image
-  #   image: dockersamples/labspace-workspace-java
+  portal:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./project/portal:/usr/share/nginx/html:ro
+    restart: unless-stopped
 
-  #   # Override the default ports to publish additional ports you may need
-  #   # More details - https://github.com/dockersamples/labspace-infra/blob/main/docs/configuration.md#overriding-the-workspace-ports
-  #   ports: !override
-  #     - "6274:6274" # Expose the MCP inspector users will launch from inside the Labspace
-  #     - "8080:8080" # The port used by the app
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./project/litellm-config.yaml:/app/config.yaml:ro
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-workshop-changeme}
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:-changeme}
+    command: --config /app/config.yaml --port 4000
+    restart: unless-stopped
 
-  #   # Add other environment variables as needed
-  #   environment:
-  #     DANGEROUSLY_OMIT_AUTH: "true" # Skip auth for the MCP Inspector
+  model-runner:
+    image: docker/model-runner:latest
+    ports:
+      - "12434:12434"
+    volumes:
+      - model-cache:/root/.docker/models
+    restart: unless-stopped
 
-# Add other models or services your Labspace may need
+volumes:
+  model-cache:

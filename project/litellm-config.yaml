@@ -1,0 +1,28 @@
+model_list:
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: gpt-4o
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: llama3.2
+    litellm_params:
+      model: openai/llama3.2
+      api_base: http://model-runner:12434/v1
+      api_key: none
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  salt_key: os.environ/LITELLM_SALT_KEY
+  default_team_settings:
+    max_budget: 2.00
+    budget_duration: 24h
+    tpm_limit: 20000
+    rpm_limit: 60
+
+litellm_settings:
+  drop_params: true
