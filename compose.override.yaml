@@ -33,5 +33,18 @@ services:
       - model-cache:/root/.docker/models
     restart: unless-stopped
 
+  key-manager:
+    build: ./project/key-manager
+    ports:
+      - "8000:8000"
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-workshop-changeme}
+      LITELLM_BASE_URL: http://litellm:4000
+      SESSION_DURATION_HOURS: 8
+      MAX_BUDGET_USD: 2.00
+    depends_on:
+      - litellm
+    restart: unless-stopped
+
 volumes:
   model-cache:
