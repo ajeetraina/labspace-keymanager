@@ -1,8 +1,11 @@
 import os, httpx
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI(title="Workshop Key Manager")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
 LITELLM_BASE = os.environ["LITELLM_BASE_URL"]
 MASTER_KEY   = os.environ["LITELLM_MASTER_KEY"]
 MAX_BUDGET   = float(os.environ.get("MAX_BUDGET_USD", "2.00"))
@@ -33,7 +36,8 @@ async def issue(req: Req):
 @app.post("/revoke")
 async def revoke():
     async with httpx.AsyncClient() as c:
-        for k in _keys: await c.post(f"{LITELLM_BASE}/key/delete", json={"keys":[k]}, headers=HEADERS)
+        for k in _keys:
+            await c.post(f"{LITELLM_BASE}/key/delete", json={"keys":[k]}, headers=HEADERS)
     _keys.clear(); return {"revoked": True}
 
 @app.get("/status")
